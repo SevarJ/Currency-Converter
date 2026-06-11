@@ -12,7 +12,11 @@ struct ExchangeRate: Identifiable, Codable {
     let date: Date
     let currencies: [Currency]
     
-    init(id: UUID, date: Date, currencies: [Currency]) {
+    init(
+        id: UUID = UUID(),
+        date: Date,
+        currencies: [Currency]
+    ) {
         self.id = id
         self.date = date
         self.currencies = currencies
