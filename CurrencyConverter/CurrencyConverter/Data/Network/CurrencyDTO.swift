@@ -16,3 +16,9 @@ struct CurrencyDTO: Decodable {
         case symbol
     }
 }
+
+extension CurrencyDTO {
+    func toDomain() -> Currency {
+        Currency(code: isoCode, name: name, symbol: symbol)
+    }
+}
