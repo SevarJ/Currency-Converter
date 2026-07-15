@@ -17,10 +17,10 @@ struct RateDTO: Decodable {
 extension RateDTO {
     func toDomain() throws -> Rate {
         guard let parsedDate = DateUtils.dateFormatter.date(from: date) else {
-            throw RatesError.decodingFailed
+            throw NetworkError.decodingFailed
         }
         guard let decimalRate = Decimal(string: "\(rate)") else {
-            throw RatesError.decodingFailed
+            throw NetworkError.decodingFailed
         }
         return Rate(
             date: parsedDate,
