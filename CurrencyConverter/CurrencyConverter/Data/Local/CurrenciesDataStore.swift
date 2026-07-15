@@ -8,13 +8,16 @@
 import Foundation
 
 final class CurrenciesDataStore: CurrenciesStoreProtocol {
-    private var fileURL: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("currencies.json")
-    }
+    private let fileURL: URL
     
     private let maxAge: TimeInterval
     
-    init(maxAge: TimeInterval  = 30 * 24 * 60 * 60) {  // 30 days in seconds)
+    init(
+        fileURL: URL =
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("currencies.json"),
+        maxAge: TimeInterval  = 30 * 24 * 60 * 60  // 30 days in seconds)
+    ) {
+        self.fileURL = fileURL
         self.maxAge = maxAge
     }
     
