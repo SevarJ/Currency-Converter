@@ -8,5 +8,5 @@
 enum RatesError: Error {
     case networkUnavailable
     case cacheEmpty
-    
+    case decodingFailed
 }
