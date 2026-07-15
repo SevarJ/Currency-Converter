@@ -7,7 +7,6 @@
 
 enum RatesError: Error {
     case networkUnavailable
-    case parsingFailed
     case cacheEmpty
     
 }
