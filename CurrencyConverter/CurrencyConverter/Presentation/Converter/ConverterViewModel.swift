@@ -10,91 +10,122 @@ import Foundation
 @MainActor
 @Observable
 final class ConverterViewModel {
-    
-    var amount: String = ""
-    
-    var baseCurrency: Currency?
-    var quoteCurrency: Currency?
-    
+
+    var amount: String = "1" {
+        didSet { recompute() }
+    }
+
+    var baseCurrency: Currency? {
+        didSet {
+            guard !suppressRateReload, oldValue != baseCurrency else { return }
+            lastRate = nil
+            result = nil
+            Task { await loadRate() }
+        }
+    }
+
+    var quoteCurrency: Currency? {
+        didSet {
+            guard !suppressRateReload, oldValue != quoteCurrency else { return }
+            lastRate = nil
+            result = nil
+            Task { await loadRate() }
+        }
+    }
+
     private(set) var allCurrencies: [Currency] = []
     private(set) var result: Decimal?
     private(set) var isLoading = false
     private(set) var errorMessage: String?
+
     private var lastRate: Rate?
-    
+    private var suppressRateReload = false
+
     private let repository: ConverterRepositoryProtocol
-    
-    init(
-        repository: ConverterRepositoryProtocol = ConverterRepository()
-    ) {
+
+    init(repository: ConverterRepositoryProtocol = ConverterRepository()) {
         self.repository = repository
     }
-    
+
     func loadCurrencies() async {
         isLoading = true
         errorMessage = nil
-        defer {
-            isLoading = false
-        }
-        
+        defer { isLoading = false }
+
         do {
             allCurrencies = try await repository.currencies()
+
+            suppressRateReload = true
             baseCurrency = allCurrencies.first { $0.code == "USD" }
             quoteCurrency = allCurrencies.first { $0.code == "AZN" }
-        }
-        catch let NetworkError.apiError(message) {
+            suppressRateReload = false
+
+            await loadRate()
+        } catch let NetworkError.apiError(message) {
             errorMessage = message
-        }
-        catch {
-            errorMessage = error.localizedDescription
+        } catch {
+            errorMessage = "Valyutalar yüklənmədi"
         }
     }
-    
-    func convert() async {
-        errorMessage = nil
+
+    func loadRate() async {
+        guard let baseCurrency, let quoteCurrency else { return }
+
         isLoading = true
+        errorMessage = nil
         defer { isLoading = false }
-        
-        guard let input = Decimal(string: amount.replacingOccurrences(of: ",", with: ".")) else {
-            errorMessage = "Input error"
-            return
-        }
-        
-        guard let baseCurrency, let quoteCurrency else {
-            errorMessage = "Add proper currency"
-            return
-        }
-        
+
         do {
-            let rate = try await repository.rate(base: baseCurrency.code, quote: quoteCurrency.code)
-            result = input * rate.rate
-            lastRate = rate
-        }
-        catch let NetworkError.apiError(message) {
+            lastRate = try await repository.rate(
+                base: baseCurrency.code,
+                quote: quoteCurrency.code
+            )
+            recompute()
+        } catch let NetworkError.apiError(message) {
             errorMessage = message
-        }
-        catch {
-            errorMessage = error.localizedDescription
+        } catch {
+            errorMessage = "Kurs yüklənmədi"
         }
     }
-    
+
     func swap() {
+        suppressRateReload = true
         let temp = baseCurrency
         baseCurrency = quoteCurrency
         quoteCurrency = temp
-        
-        guard let lastRate, let input = Decimal(string: amount.replacingOccurrences(of: ",", with: ".")) else {
+        suppressRateReload = false
+
+        if let lastRate {
+            self.lastRate = Rate(
+                date: lastRate.date,
+                base: lastRate.quote,
+                quote: lastRate.base,
+                rate: 1 / lastRate.rate
+            )
+            recompute()
+        } else {
+            Task { await loadRate() }
+        }
+    }
+
+    private func recompute() {
+        guard let lastRate else {
             result = nil
             return
         }
-        
-        let inverted = Rate(
-            date: lastRate.date,
-            base: lastRate.quote,
-            quote: lastRate.base,
-            rate: 1 / lastRate.rate
-        )
-        self.lastRate = inverted
-        result = input * inverted.rate
+
+        let normalized = amount.replacingOccurrences(of: ",", with: ".")
+
+        let input: Decimal
+        if normalized.isEmpty {
+            input = 1
+        } else if let parsed = Decimal(string: normalized) {
+            input = parsed
+        } else {
+            result = nil
+            return
+        }
+
+        result = input * lastRate.rate
     }
 }
