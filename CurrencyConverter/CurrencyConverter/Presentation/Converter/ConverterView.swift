@@ -31,6 +31,9 @@ struct ConverterView: View {
                     .focused($amountFocused)
                     .fixedSize()
             }
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+            .onTapGesture { amountFocused = true }
             HStack(spacing: 16) {
                 currencyButton(viewModel.baseCurrency) {
                     pickerTarget = .base
