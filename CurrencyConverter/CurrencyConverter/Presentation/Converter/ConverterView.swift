@@ -16,7 +16,7 @@ struct ConverterView: View {
     @State private var viewModel = ConverterViewModel()
     @State private var pickerTarget: PickerTarget?
     @FocusState private var amountFocused: Bool
-
+    
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
@@ -38,7 +38,7 @@ struct ConverterView: View {
                 currencyButton(viewModel.baseCurrency) {
                     pickerTarget = .base
                 }
-
+                
                 Button {
                     viewModel.swap()
                 } label: {
@@ -49,12 +49,12 @@ struct ConverterView: View {
                 }
                 .buttonStyle(.bordered)
                 .clipShape(Circle())
-
-                currencyButton(viewModel.quoteCurrency) {
+                
+                CurrencyButton(viewModel.quoteCurrency) {
                     pickerTarget = .quote
                 }
             }
-
+            
             ZStack {
                 if viewModel.isLoading {
                     ProgressView()
@@ -66,13 +66,13 @@ struct ConverterView: View {
                 }
             }
             .frame(minHeight: 50)
-
+            
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .font(.caption)
                     .foregroundStyle(.red)
             }
-
+            
             Spacer()
             Spacer()
         }
@@ -84,27 +84,13 @@ struct ConverterView: View {
             CurrencyPickerView(
                 currencies: viewModel.allCurrencies,
                 selection: target == .base
-                    ? $viewModel.baseCurrency
-                    : $viewModel.quoteCurrency
+                ? $viewModel.baseCurrency
+                : $viewModel.quoteCurrency
             )
         }
         .contentShape(Rectangle())
         .onTapGesture {
             amountFocused = false
         }
-    }
-
-    private func currencyButton(
-        _ currency: Currency?,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Text(currency.map { "\($0.symbol) \($0.code)" } ?? "Choose")
-                .font(.headline)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(Capsule().fill(Color(.systemGray6)))
-        }
-        .foregroundStyle(.primary)
     }
 }

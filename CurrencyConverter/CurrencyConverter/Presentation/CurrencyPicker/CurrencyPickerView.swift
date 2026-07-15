@@ -22,23 +22,10 @@ struct CurrencyPickerView: View {
         NavigationStack {
             List(filteredCurrencies) { currency in
                 Button {
-                  selection = currency
+                    selection = currency
                     dismiss()
                 } label: {
-                    HStack(spacing: 12) {
-                        Text(currency.symbol)
-                            .font(.control)
-                            .frame(width: 44, height: 44)
-                            .background(Circle().fill(Color(.systemGray6)))
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(currency.code).font(.control)
-                            Text(currency.name)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
+                    CurrencyRowView(currency: currency) {
                         
                         if currency == selection {
                             Image(systemName: "checkmark")
