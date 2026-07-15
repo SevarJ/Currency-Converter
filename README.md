@@ -8,6 +8,7 @@ A SwiftUI currency converter powered by the [Frankfurter v2 API](https://frankfu
 ## Features
 
 - **Live conversion** — result updates as you type; no convert button
+- **Rates list** — all rates for a chosen base currency, with per-rate dates
 - **200+ currencies** including AZN, sourced from 84 central banks
 - **Searchable currency picker** with symbols and full names
 - **Instant swap** — inverts the cached rate locally, no extra network call
@@ -19,12 +20,13 @@ A SwiftUI currency converter powered by the [Frankfurter v2 API](https://frankfu
 Clean Architecture with a strict one-way dependency flow:
 
 ```
-Presentation          Domain                 Data
-────────────          ──────                 ────
-ConverterView    ┌─ Currency, Rate ─┐   ConverterRepository
-ConverterVM ───▶ │ RepositoryProto  │ ◀─ NetworkService ── Frankfurter v2
-CurrencyPicker   └─ NetworkError ───┘   CurrenciesDataStore (disk cache)
-                                        DTOs (network + storage)
+Presentation            Domain                 Data
+────────────            ──────                 ────
+ConverterView/VM   ┌─ Currency, Rate ─┐   ConverterRepository
+RatesListView/VM ─▶│ RepositoryProto  │◀─ NetworkService ── Frankfurter v2
+CurrencyPicker     └─ NetworkError ───┘   CurrenciesDataStore (disk cache)
+Components (row,                          DTOs (network + storage)
+ currency button)
 ```
 
 - **Domain** knows nothing about the API or storage — pure Swift types.
@@ -32,7 +34,8 @@ CurrencyPicker   └─ NetworkError ───┘   CurrenciesDataStore (disk ca
   persistence (storage DTOs), URL building. Mapping to domain entities
   happens at the boundary (`toDomain()`).
 - **Presentation** is MVVM: `@Observable` view models talk to the domain
-  protocol, never to the network directly.
+  protocol, never to the network directly. One view model per screen;
+  shared UI (currency row, currency button) lives in reusable components.
 
 Key decisions:
 
