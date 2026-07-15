@@ -99,7 +99,7 @@ struct ConverterView: View {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            Text(currency.map { "\($0.symbol) \($0.code)" } ?? "Seç")
+            Text(currency.map { "\($0.symbol) \($0.code)" } ?? "Choose")
                 .font(.headline)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)

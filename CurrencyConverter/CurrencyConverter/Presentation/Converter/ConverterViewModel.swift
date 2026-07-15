@@ -64,7 +64,7 @@ final class ConverterViewModel {
         } catch let NetworkError.apiError(message) {
             errorMessage = message
         } catch {
-            errorMessage = "Valyutalar yüklənmədi"
+            errorMessage = "Failed to load currencies"
         }
     }
 
@@ -84,7 +84,7 @@ final class ConverterViewModel {
         } catch let NetworkError.apiError(message) {
             errorMessage = message
         } catch {
-            errorMessage = "Kurs yüklənmədi"
+            errorMessage = "Failed to load rate"
         }
     }
 
