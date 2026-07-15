@@ -6,10 +6,19 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        ConverterView()
+        TabView {
+            ConverterView()
+                .tabItem {
+                    Label("Converter", systemImage: "arrow.left.arrow.right")
+                }
+            
+            RatesListView()
+                .tabItem {
+                    Label("Rates", systemImage: "list.bullet")
+                }
+        }
     }
 }
