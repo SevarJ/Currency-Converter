@@ -8,6 +8,6 @@
 import Foundation
 
 protocol CurrenciesStoreProtocol {
-    func load() -> [Currency]?
+    func load(ignoringTTL: Bool) -> [Currency]?
     func save(_ currencies: [Currency])
 }

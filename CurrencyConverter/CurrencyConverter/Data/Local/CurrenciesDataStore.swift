@@ -21,14 +21,16 @@ final class CurrenciesDataStore: CurrenciesStoreProtocol {
         self.maxAge = maxAge
     }
     
-    func load() -> [Currency]? {
+    func load(ignoringTTL: Bool = false) -> [Currency]? {
         guard let data = try? Data(contentsOf: fileURL) else { return nil }
         
         guard let dto = try? JSONDecoder().decode(CachedCurrenciesDTO.self, from: data) else { return nil }
         
-        let age = Date().timeIntervalSince(dto.savedAt)
-        guard abs(age) < maxAge else {
-            return nil
+        if !ignoringTTL {
+            let age = Date().timeIntervalSince(dto.savedAt)
+            guard abs(age) < maxAge else {
+                return nil
+            }
         }
         
         return dto.currencies.map { Currency(code: $0.code, name: $0.name, symbol: $0.symbol )}

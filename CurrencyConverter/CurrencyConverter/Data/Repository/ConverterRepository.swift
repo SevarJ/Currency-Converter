@@ -21,17 +21,25 @@ final class ConverterRepository: ConverterRepositoryProtocol {
     }
     
     func currencies() async throws -> [Currency] {
-        if let cached = currenciesStore.load(), !cached.isEmpty {
+        if let cached = currenciesStore.load(ignoringTTL: false), !cached.isEmpty {
             return cached
         }
-        else {
+        do {
             let dtos: [CurrencyDTO] = try await networkService.fetch(.currencies)
             let currencies = dtos.map { $0.toDomain() }
             
             currenciesStore.save(currencies)
             return currencies
         }
+        catch {
+            if let stale = currenciesStore.load(ignoringTTL: true), !stale.isEmpty {
+                return stale
+            }
+            
+            throw error
+        }
     }
+    
     
     func rate(base: String, quote: String) async throws -> Rate {
         let dto: RateDTO = try await networkService.fetch(.rate(base: base, quote: quote))

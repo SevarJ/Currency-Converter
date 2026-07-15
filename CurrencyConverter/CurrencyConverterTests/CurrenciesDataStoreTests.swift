@@ -15,39 +15,52 @@ struct CurrenciesDataStoreTests {
             .appendingPathComponent(UUID().uuidString + ".json")
         return CurrenciesDataStore(fileURL: url, maxAge: maxAge)
     }
-    @Test func saveThenLoad_returnsSameCurrencies() async throws {
+    @Test func saveThenLoad_returnsSameCurrencies()  throws {
         let store = makeStore()
         
         let currencies: [Currency] = [
             .init(code: "AED", name: "United Arab Emirates Dirham", symbol: "د.إ"),
             .init(code: "AFN", name: "Afghan Afghani", symbol: "؋")
         ]
-        await store.save(currencies)
+        store.save(currencies)
         
-        let result = await store.load()
+        let result = store.load()
         
         #expect(currencies == result)
     }
     
-    @Test func load_noFile_returnsNil() async throws {
+    @Test func load_noFile_returnsNil()  throws {
         let store = makeStore()
         
-        let result = await store.load()
+        let result = store.load()
         
         #expect(result == nil)
     }
     
     
-    @Test func load_expiredTTL_returnsNil() async throws {
+    @Test func load_expiredTTL_returnsNil()  throws {
         let store = makeStore(maxAge: -1)
         let currencies: [Currency] = [
             .init(code: "AED", name: "United Arab Emirates Dirham", symbol: "د.إ"),
             .init(code: "AFN", name: "Afghan Afghani", symbol: "؋")
         ]
-        await store.save(currencies)
+        store.save(currencies)
         
-        let result = await store.load()
+        let result = store.load()
         
         #expect(result == nil)
+    }
+    
+    @Test func load_expiredTTL_ignoringTTL_returnsCurrencies() throws {
+        let store = makeStore(maxAge: -1)
+        let currencies: [Currency] = [
+            .init(code: "AED", name: "United Arab Emirates Dirham", symbol: "د.إ"),
+            .init(code: "AFN", name: "Afghan Afghani", symbol: "؋")
+        ]
+        store.save(currencies)
+        
+        let result = store.load(ignoringTTL: true)
+        
+        #expect(result == currencies)
     }
 }
