@@ -10,16 +10,27 @@ import Foundation
 final class ConverterRepository: ConverterRepositoryProtocol {
     
     private let networkService: NetworkServiceProtocol
+    private let currenciesStore: CurrenciesStoreProtocol
     
     init(
-        networkService: NetworkServiceProtocol = ConverterNetworkService()
+        networkService: NetworkServiceProtocol = ConverterNetworkService(),
+        currenciesStore: CurrenciesStoreProtocol = CurrenciesDataStore()
     ) {
         self.networkService = networkService
+        self.currenciesStore = currenciesStore
     }
     
     func currencies() async throws -> [Currency] {
-        let dtos: [CurrencyDTO] = try await networkService.fetch(.currencies)
-        return dtos.map { $0.toDomain() }
+        if let cached = currenciesStore.load(), !cached.isEmpty {
+            return cached
+        }
+        else {
+            let dtos: [CurrencyDTO] = try await networkService.fetch(.currencies)
+            let currencies = dtos.map { $0.toDomain() }
+            
+            currenciesStore.save(currencies)
+            return currencies
+        }
     }
     
     func rate(base: String, quote: String) async throws -> Rate {
