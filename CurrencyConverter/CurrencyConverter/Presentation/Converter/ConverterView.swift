@@ -35,7 +35,7 @@ struct ConverterView: View {
             .contentShape(Rectangle())
             .onTapGesture { amountFocused = true }
             HStack(spacing: 16) {
-                currencyButton(viewModel.baseCurrency) {
+                CurrencyButton(currency: viewModel.baseCurrency) {
                     pickerTarget = .base
                 }
                 
@@ -50,7 +50,7 @@ struct ConverterView: View {
                 .buttonStyle(.bordered)
                 .clipShape(Circle())
                 
-                CurrencyButton(viewModel.quoteCurrency) {
+                CurrencyButton(currency: viewModel.quoteCurrency) {
                     pickerTarget = .quote
                 }
             }
