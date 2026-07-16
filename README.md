@@ -9,6 +9,9 @@ A SwiftUI currency converter powered by the [Frankfurter v2 API](https://frankfu
 
 - **Live conversion** — result updates as you type; no convert button
 - **Rates list** — all rates for a chosen base currency, with per-rate dates
+- **Historical charts** — interactive rate history with touch scrubbing,
+  quick presets (1M/3M/1Y), and a custom date range; resolution (daily,
+  weekly, monthly) adapts automatically to the range length
 - **200+ currencies** including AZN, sourced from 84 central banks
 - **Searchable currency picker** with symbols and full names
 - **Instant swap** — inverts the cached rate locally, no extra network call
@@ -55,6 +58,7 @@ Key decisions:
 | `GET /v2/currencies` | Currency list (code, name, symbol) |
 | `GET /v2/rate/{base}/{quote}` | Single pair rate for the converter |
 | `GET /v2/rates?base=X&quotes=A,B` | Multi-currency rates |
+| `GET /v2/rates?from=...&to=...&group=...` | Time series for history charts |
 
 ## Requirements
 
@@ -77,6 +81,10 @@ Unit tests (Swift Testing) cover the decision points of the codebase:
 - **Endpoint URLs** — correct paths/queries, including the empty-quotes case
 - **DTO → domain mapping** — date parsing and `Decimal` precision
   (guards against reintroducing float-based conversion)
+- **Disk cache** — save/load round-trip, TTL expiry, and the
+  `ignoringTTL` escape hatch (isolated via injected file URLs)
+- **Repository policies** — cache-first reads, stale-while-error fallback,
+  and automatic chart resolution, proven with a mock network service
 
 Run locally with ⌘U. CI runs the full suite on every push and pull request
 (GitHub Actions, macOS runner).
