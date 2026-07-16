@@ -64,11 +64,28 @@ struct ConverterRepositoryTests {
     }
     
     @Test func currencies_noCache_network_fail() async throws {
-        let (repo, network, store) = makeSUT()
+        let (repo, network, _) = makeSUT()
         network.result = .failure(NetworkError.networkUnavailable)
         
         await #expect(throws: NetworkError.self) {
             try await repo.currencies()
         }
+    }
+    
+    @Test func history_twoYearRange_usesMonthGrouping() async throws {
+        let (repo, network, _) = makeSUT()
+        
+        network.result = .success([RateDTO]())
+        
+        let from = Calendar.current.date(byAdding: .year, value: -2, to: Date())!
+        
+        _ = try await repo.history(base: "USD", quote: "EUR", from: from, to: nil)
+        
+        guard case let .history(_, _, _, _, group) = network.lastEndpoint else {
+            Issue.record("History endpoint is not called")
+            return
+        }
+        
+        #expect(group == "month")
     }
 }
