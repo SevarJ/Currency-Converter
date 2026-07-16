@@ -50,4 +50,27 @@ final class ConverterRepository: ConverterRepositoryProtocol {
         let dtos: [RateDTO] = try await networkService.fetch(.rates(base: base, quotes: quotes))
         return try dtos.map { try $0.toDomain() }
     }
+    
+    func history(base: String, quote: String, from: Date, to: Date?) async throws -> [Rate] {
+        let group = grouping(from: from, to: to ?? Date())
+        let dtos: [RateDTO] = try await networkService.fetch(
+            .history(
+                    base: base,
+                    quote: quote,
+                    from: from,
+                    to: to,
+                    group: group
+            )
+        )
+        return try dtos.map { try $0.toDomain() }
+    }
+    
+    private func grouping(from: Date, to: Date) -> String? {
+        let days = Calendar.current.dateComponents([.day], from: from, to: to).day ?? 0
+        switch days {
+        case ..<45:    return nil
+        case ..<400:   return "week"
+        default:       return "month"
+        }
+    }
 }
