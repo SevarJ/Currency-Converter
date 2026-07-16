@@ -15,11 +15,17 @@ struct RatesListView: View {
         NavigationStack {
             List(viewModel.rates, id: \.quote) { rate in
                 if let currency = viewModel.currenciesByCode[rate.quote] {
-                    CurrencyRowView(currency: currency) {
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text(rate.rate.formatted(.number.precision(.fractionLength(0...4))))
-                            Text(rate.date.formatted(.dateTime.day().month()))
-                                .font(.caption).foregroundStyle(.secondary)
+                    NavigationLink {
+                        if let baseCurrency = viewModel.baseCurrency {
+                            RateHistoryView(base: baseCurrency, quote: currency)
+                        }
+                    } label: {
+                        CurrencyRowView(currency: currency) {
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(rate.rate.formatted(.number.precision(.fractionLength(0...4))))
+                                Text(rate.date.formatted(.dateTime.day().month()))
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }

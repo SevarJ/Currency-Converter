@@ -12,4 +12,8 @@ struct Rate {
     let base: String
     let quote: String
     let rate: Decimal
+    
+    var rateAsDouble: Double {
+        NSDecimalNumber(decimal: rate).doubleValue
+    }
 }
