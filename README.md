@@ -15,6 +15,8 @@ A SwiftUI currency converter powered by the [Frankfurter v2 API](https://frankfu
 - **200+ currencies** including AZN, sourced from 84 central banks
 - **Searchable currency picker** with symbols and full names
 - **Instant swap** — inverts the cached rate locally, no extra network call
+- **Home screen widget** — latest rate at a glance, refreshed every few
+  hours via a WidgetKit timeline (with a faster retry when offline)
 - **Offline-friendly** — currency list is cached on disk (30-day TTL)
 - Decimal-accurate money math (no floating-point drift)
 
@@ -30,6 +32,9 @@ RatesListView/VM ─▶│ RepositoryProto  │◀─ NetworkService ── Fran
 CurrencyPicker     └─ NetworkError ───┘   CurrenciesDataStore (disk cache)
 Components (row,                          DTOs (network + storage)
  currency button)
+
+Widget extension: reuses the network layer to fetch a single rate
+on a WidgetKit timeline (separate process, no shared state with the app).
 ```
 
 - **Domain** knows nothing about the API or storage — pure Swift types.
@@ -48,6 +53,9 @@ Key decisions:
   currency pair, keystrokes recompute locally.
 - Every dependency is injected via protocols (`URLSession` → service →
   repository → view model), which makes each layer testable in isolation.
+- The whole dependency graph is built once in a single composition root
+  (`AppDependencies`) and distributed through the SwiftUI environment;
+  screens construct their view models via constructor injection.
 
 ## API
 
