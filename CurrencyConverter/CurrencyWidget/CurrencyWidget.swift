@@ -10,21 +10,39 @@ import SwiftUI
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), base: "USD", quote: "EUR", rate: 0.8741)
+        SimpleEntry.placeholder
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), base: "USD", quote: "EUR", rate: 0.8741)
-        completion(entry)
+        completion( SimpleEntry.placeholder)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let entry = SimpleEntry(date: Date(), base: "USD", quote: "AZN", rate: 1.6996)
-        let timeline = Timeline(
-            entries: [entry],
-            policy: .after(Date().addingTimeInterval(4 * 60 * 60))
-        )
-        completion(timeline)
+    func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
+        Task {
+            do {
+                let service = ConverterNetworkService()
+                let dto: RateDTO = try await service.fetch(.rate(base: "USD", quote: "EUR"))
+                let rate = try dto.toDomain()
+                
+                let entry = SimpleEntry(
+                    date: rate.date,
+                    base: rate.base,
+                    quote: rate.quote,
+                    rate: rate.rate
+                )
+                let timeline = Timeline(
+                    entries: [entry],
+                    policy: .after(Date().addingTimeInterval(4 * 60 * 60))
+                )
+                completion(timeline)
+            } catch {
+                let timeline = Timeline(
+                    entries: [SimpleEntry.placeholder],
+                    policy:  .after(Date().addingTimeInterval(30 * 60))
+                )
+                completion(timeline)
+            }
+        }
     }
 
 //    func relevances() async -> WidgetRelevances<Void> {
@@ -39,19 +57,21 @@ struct SimpleEntry: TimelineEntry {
     let rate: Decimal
 }
 
+extension SimpleEntry {
+    static let placeholder = SimpleEntry(date: .now, base: "USD", quote: "EUR", rate: 0.8741)
+}
+
 struct CurrencyWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        VStack {
+        VStack(spacing: 6) {
             Text(entry.date, style: .date)
-                .foregroundStyle(.placeholder)
+                .foregroundStyle(.secondary)
                 .font(.headline)
-            Spacer()
-            Text("\(entry.base) -> \(entry.quote)")
+            Text("\(entry.base) → \(entry.quote)")
                 .font(.title2)
                 .bold()
-            Spacer()
             Text(entry.rate.formatted(.number.precision(.fractionLength(0...4))))
                 .font(.headline)
         }
@@ -74,6 +94,6 @@ struct CurrencyWidget: Widget {
 #Preview(as: .systemSmall) {
     CurrencyWidget()
 } timeline: {
-    SimpleEntry(date: Date(), base: "USD", quote: "EUR", rate: 0.8741)
-    SimpleEntry(date: Date(), base: "USD", quote: "EUR", rate: 0.8741)
+    SimpleEntry.placeholder
+    SimpleEntry.placeholder
 }

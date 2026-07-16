@@ -59,6 +59,20 @@
 			);
 			target = E76271CF3008D492002F179C /* CurrencyWidgetExtension */;
 		};
+		E76271E73008D824002F179C /* Exceptions for "CurrencyConverter" folder in "CurrencyWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Data/Network/Endpoint/ConverterEndpoint.swift,
+				Data/Network/Models/APIErrorDTO.swift,
+				Data/Network/Models/RateDTO.swift,
+				Data/Network/Services/ConverterNetworkService.swift,
+				Data/Network/Services/NetworkServiceProtocol.swift,
+				Domain/Entity/Rate.swift,
+				Domain/Error/NetworkError.swift,
+				Utilities/DateUtils.swift,
+			);
+			target = E76271CF3008D492002F179C /* CurrencyWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -77,6 +91,9 @@
 		};
 		E78CF4492FD9ECD9004B0059 /* CurrencyConverter */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E76271E73008D824002F179C /* Exceptions for "CurrencyConverter" folder in "CurrencyWidgetExtension" target */,
+			);
 			path = CurrencyConverter;
 			sourceTree = "<group>";
 		};
