@@ -40,7 +40,7 @@ final class RateHistoryViewModel {
     init(
         base: Currency,
         quote: Currency,
-        repository: ConverterRepositoryProtocol = ConverterRepository()
+        repository: ConverterRepositoryProtocol
     ) {
         self.base = base
         self.quote = quote

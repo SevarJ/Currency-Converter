@@ -8,16 +8,24 @@
 import SwiftUI
 
 struct RatesListView: View {
-    @State private var viewModel = RatesListViewModel()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var viewModel: RatesListViewModel
     @State private var showCurrencies = false
     
+    init(repository: ConverterRepositoryProtocol) {
+        self.viewModel = RatesListViewModel(repository: repository)
+    }
     var body: some View {
         NavigationStack {
             List(viewModel.rates, id: \.quote) { rate in
                 if let currency = viewModel.currenciesByCode[rate.quote] {
                     NavigationLink {
                         if let baseCurrency = viewModel.baseCurrency {
-                            RateHistoryView(base: baseCurrency, quote: currency)
+                            RateHistoryView(
+                                base: baseCurrency,
+                                quote: currency,
+                                repository: dependencies.repository
+                            )
                         }
                     } label: {
                         CurrencyRowView(currency: currency) {

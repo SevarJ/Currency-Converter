@@ -26,7 +26,7 @@ final class RatesListViewModel {
     }
     
     init(
-        repository: ConverterRepositoryProtocol = ConverterRepository()
+        repository: ConverterRepositoryProtocol
     ) {
         self.repository = repository
     }

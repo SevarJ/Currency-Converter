@@ -13,8 +13,8 @@ final class ConverterRepository: ConverterRepositoryProtocol {
     private let currenciesStore: CurrenciesStoreProtocol
     
     init(
-        networkService: NetworkServiceProtocol = ConverterNetworkService(),
-        currenciesStore: CurrenciesStoreProtocol = CurrenciesDataStore()
+        networkService: NetworkServiceProtocol,
+        currenciesStore: CurrenciesStoreProtocol
     ) {
         self.networkService = networkService
         self.currenciesStore = currenciesStore

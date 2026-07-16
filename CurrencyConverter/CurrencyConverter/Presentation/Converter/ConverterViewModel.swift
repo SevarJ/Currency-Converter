@@ -43,7 +43,7 @@ final class ConverterViewModel {
 
     private let repository: ConverterRepositoryProtocol
 
-    init(repository: ConverterRepositoryProtocol = ConverterRepository()) {
+    init(repository: ConverterRepositoryProtocol) {
         self.repository = repository
     }
 

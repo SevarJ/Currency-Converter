@@ -13,9 +13,17 @@ enum PickerTarget: Identifiable {
 }
 
 struct ConverterView: View {
-    @State private var viewModel = ConverterViewModel()
+    @State private var viewModel: ConverterViewModel
     @State private var pickerTarget: PickerTarget?
     @FocusState private var amountFocused: Bool
+    
+    init(
+        repository: ConverterRepositoryProtocol
+    ) {
+        self.viewModel = ConverterViewModel(
+            repository: repository
+        )
+    }
     
     var body: some View {
         VStack(spacing: 28) {

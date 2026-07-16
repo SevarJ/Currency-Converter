@@ -12,8 +12,16 @@ struct RateHistoryView: View {
     @State private var viewModel: RateHistoryViewModel
     @State private var selectedDate: Date?
     
-    init(base: Currency, quote: Currency) {
-        _viewModel = .init(initialValue: .init(base: base, quote: quote))
+    init(
+        base: Currency,
+        quote: Currency,
+        repository: ConverterRepositoryProtocol
+    ) {
+        self.viewModel = .init(
+            base: base,
+            quote: quote,
+            repository: repository
+        )
     }
     
     // MARK: - Bindings
